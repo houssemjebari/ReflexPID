@@ -79,7 +79,7 @@ def expand(state: ToTState, *, config: RunnableConfig) -> Dict[str, List[Candida
         result = pid_solver.invoke({
             "requirements" : state["requirements"],
             "candidate" : candidate_str,
-            "plant_description": state["plant"],
+            "plant_description": state["plant"].to_latex(),
             "k" : k
         })
     except Exception as e:
