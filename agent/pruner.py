@@ -2,7 +2,7 @@ from models.state import ToTState
 from models.feedback import Candidate
 from typing import Dict, List
 from langchain_core.runnables import RunnableConfig
-from agent.agent import _ensure_configurable
+from agent.utils import _ensure_configurable
 
 def prune(state: ToTState, config: RunnableConfig) -> Dict[str, List[Candidate]]:
     ''' Prune The Tree Candidates '''

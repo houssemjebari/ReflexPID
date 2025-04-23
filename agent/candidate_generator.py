@@ -1,12 +1,12 @@
 from langchain_core.prompts import ChatPromptTemplate
-from agent.agent import get_llm
 from models.controller import GuessPIDControllers
 from langchain_core.runnables import RunnableConfig
 from models.feedback import Candidate
 from models.controller import PIDController
 from typing import Dict, List
 from models.state import ToTState
-from agent.agent import _ensure_configurable
+from agent.utils import _ensure_configurable, get_llm
+
 
 system_prompt = """
 You are a control systems expert. Your task is to propose well-tuned PID controllers for a given plant.

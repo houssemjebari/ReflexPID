@@ -2,7 +2,7 @@ from typing import Dict, List, Union, Literal
 from models.state import ToTState
 from langchain_core.runnables import RunnableConfig
 from langgraph.constants import Send
-from agent.agent import _ensure_configurable
+from agent.utils import _ensure_configurable
 
 
 def should_terminate(state: ToTState, config: RunnableConfig) -> Union[Literal["__end__"], Send]:
