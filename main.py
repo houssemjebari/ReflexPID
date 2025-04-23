@@ -5,6 +5,7 @@ import getpass
 import operator
 from agent.candidate_generator import expand
 from agent.score import score
+from agent.pruner import prune
 from models.feedback import Candidate
 from models.controller import PIDController
 from engine.evaluate import compute_pid_metrics
@@ -60,7 +61,7 @@ def main():
 
     # 8. Call the scorer
     print("\n🧪 Testing Scorer node...")
-    expand_node = RunnableLambda(score)
+    score_node = RunnableLambda(score)
     state = {
         "plant": plant,
         "requirements": requirements,
@@ -68,7 +69,17 @@ def main():
         "scored_candidates": [],
         "depth": 0
     }
-    out = expand_node.invoke(state, config=RunnableConfig(configurable={"k": 3}))
+    out = score_node.invoke(state, config=RunnableConfig(configurable={"k": 3}))
+    print(out)
+
+    # 9. Call the pruner
+    print("\n🧪 Testing Pruner node...")
+    prune_node = RunnableLambda(prune)
+    state = {
+        "scored_candidates": out["scored_candidates"],
+        "depth": 0
+    }
+    out = prune_node.invoke(state, config=RunnableConfig(configurable={"beam_size": 1}))
     print(out)
 
 
