@@ -3,9 +3,6 @@ load_dotenv()
 import os
 import getpass
 import operator
-from agent.candidate_generator import expand
-from agent.score import score
-from agent.pruner import prune
 from models.feedback import Candidate
 from models.controller import PIDController
 from engine.evaluate import compute_pid_metrics
@@ -14,6 +11,7 @@ from plant import get_default_plant
 from plot import plot_response
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.config import RunnableConfig
+from agent.agent import create_agent, run_agent
 
 
 def main():
@@ -33,8 +31,10 @@ def main():
     for k, v in metrics.items():
         print(f"{k}: {v}")
 
+    # Create The Plant
     plant = get_default_plant()
     G = plant.get_tf()
+    # Compute Initial Metrics with Initial Controller
     metrics = compute_pid_metrics(pid, G)
     candidate = Candidate(candidate=pid, metrics=metrics)
     requirements = {
@@ -44,7 +44,8 @@ def main():
         "steady_state_error": 0.01,
         "IAE": 1.0
     }
-    state = {
+    # Initialize the State
+    initial_state = {
         "plant": plant,
         "requirements": requirements,
         "seed": candidate,
@@ -53,34 +54,11 @@ def main():
         "depth": 0
     }
 
-    # 7. Call the expander
-    print("\n🧪 Testing expander node...")
-    expand_node = RunnableLambda(expand)
-    out = expand_node.invoke(state, config=RunnableConfig(configurable={"k": 3}))
-    print(out)
-
-    # 8. Call the scorer
-    print("\n🧪 Testing Scorer node...")
-    score_node = RunnableLambda(score)
-    state = {
-        "plant": plant,
-        "requirements": requirements,
-        "candidates": out["candidates"],
-        "scored_candidates": [],
-        "depth": 0
-    }
-    out = score_node.invoke(state, config=RunnableConfig(configurable={"k": 3}))
-    print(out)
-
-    # 9. Call the pruner
-    print("\n🧪 Testing Pruner node...")
-    prune_node = RunnableLambda(prune)
-    state = {
-        "scored_candidates": out["scored_candidates"],
-        "depth": 0
-    }
-    out = prune_node.invoke(state, config=RunnableConfig(configurable={"beam_size": 1}))
-    print(out)
+    # Create The Agent
+    agent = create_agent()
+    
+    # Run The Agent
+    run_agent(agent, initial_state, config=RunnableConfig(configurable={}))
 
 
 if __name__ == "__main__":
