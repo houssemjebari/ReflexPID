@@ -21,10 +21,17 @@ def compute_score(candidate: Candidate, plant, requirements, weights, loss_type=
 
 
 def score(state: ToTState) -> Dict[str, List[ScoredCandidate]]:
+    '''Score Candidates Node '''
+
+    # Log the Current Node
+    print("\n--📏 Scoring PID candidates based on performance metrics...--")
+
+    # Extract All The  Necessary Config and State Attributes 
     candidates = state["candidates"]
     plant = state["plant"]
     requirements = state["requirements"]
 
+    # Set The Loss Weights Based On Importance
     weights = {
         "rise_time": 1.0,
         "settling_time": 1.0,
@@ -33,6 +40,7 @@ def score(state: ToTState) -> Dict[str, List[ScoredCandidate]]:
         "IAE": 1.0
     }
 
+    # Compute Each Candidates Score
     scored = [
         compute_score(candidate, plant, requirements, weights)
         for candidate in candidates

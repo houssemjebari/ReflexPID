@@ -6,7 +6,7 @@ from models.feedback import Candidate
 from models.controller import PIDController
 from typing import Dict, List
 from models.state import ToTState
-from models.configuration import Configuration
+from agent.agent import _ensure_configurable
 
 system_prompt = """
 You are a control systems expert. Your task is to propose well-tuned PID controllers for a given plant.
@@ -46,21 +46,10 @@ pid_solver = prompt | llm.with_structured_output(GuessPIDControllers)
 def get_pid_solver():
     return pid_solver
 
-def _ensure_configurable(config: RunnableConfig) -> Configuration:
-    """Get Params that configure the search algorithm."""
-    configurable = config.get("configurable", {})
-    return {
-        **configurable,
-        "max_depth" : configurable.get("max_depth", 10),
-        "threshold" : config.get("threshold", 0.9),
-        "k": configurable.get("k", 5),
-        "beam_size" : configurable.get("beam_size", 3),
-    }
-
 def expand(state: ToTState, *, config: RunnableConfig) -> Dict[str, List[Candidate]]:
-    """
+    '''
     Generate the next set of PID controller candidates from the current state.
-    """
+    '''
     # Log the Current Node
     print("\n--🧠 Invoking PID generation chain...--")
 
